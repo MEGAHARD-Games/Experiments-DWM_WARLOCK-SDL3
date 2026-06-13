@@ -4,7 +4,7 @@ Experiment: Seeing how feasible it is to port [DWM_WARLOCK](https://github.com/M
 
 ## Building
 
-### Linux
+### Linux CLI
 
 1. clone this repo: https://github.com/MEGAHARD-Games/Experiments-DWM_WARLOCK-SDL3.git
 2. cd into the cloned dir
@@ -13,9 +13,9 @@ Experiment: Seeing how feasible it is to port [DWM_WARLOCK](https://github.com/M
 5. run the command `cd build/Release/` to go into the directory where the library and game were built
 6. run the command `LD_LIBRARY_PATH=. ./TryingFoxHunting` to start it, while making sure that it uses the library files in the current directory
 
-### Windows
+### Windows/Linux
 
-1. install CLion: https://www.jetbrains.com/clion/
+1. install CLion: https://www.jetbrains.com/clion/ (it's free (for non-commercial use))
 2. start it, and "create a new project from version control"
 3. fill in this URL: https://github.com/MEGAHARD-Games/Experiments-DWM_WARLOCK-SDL3.git
 4. click "clone" and wait
