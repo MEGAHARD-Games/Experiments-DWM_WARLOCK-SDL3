@@ -45,6 +45,16 @@ add_executable(${CMAKE_PROJECT_NAME}
 # Link to the libraries
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL3::SDL3 glm::glm)
 
+# Copy C++ DLLs to the build directory for Windows
+if (WIN32)
+	add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			$<TARGET_RUNTIME_DLLS:${CMAKE_PROJECT_NAME}>
+			$<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
+			COMMAND_EXPAND_LISTS
+	)
+endif ()
+
 # This is safe to set on all platforms. Otherwise your SDL app will
 #  have a terminal window pop up with it on Windows.
 set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY WIN32_EXECUTABLE TRUE)
