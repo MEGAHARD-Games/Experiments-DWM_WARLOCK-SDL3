@@ -2,6 +2,9 @@
 
 Experiment: Seeing how feasible it is to port [DWM_WARLOCK](https://github.com/MEGAHARD-Games/DWM_WARLOCK) to SDL3
 
+Other related experiments:
+- [Godot](https://github.com/TechnicJelle/Experiments-DWM_WARLOCK-Godot)
+
 ## Building
 
 ### Linux CLI
