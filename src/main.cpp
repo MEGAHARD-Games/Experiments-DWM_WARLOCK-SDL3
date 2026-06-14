@@ -4,6 +4,7 @@
 
 #include <glm/vec2.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/ext/scalar_common.hpp>
 
 float map(const float value, const float inMin, const float inMax, const float outMin, const float outMax) {
 	return outMin + (outMax - outMin) * ((value - inMin) / (inMax - inMin));
@@ -21,8 +22,7 @@ glm::vec2 fromAngle(const float angle) {
 	return {SDL_cos(angle), SDL_sin(angle)};
 }
 
-constexpr int WINDOW_WIDTH = 400;
-constexpr int WINDOW_HEIGHT = 400;
+constexpr glm::ivec2 WINDOW_SIZE = {400, 400};
 
 struct MyAppState {
 	SDL_Window* window = nullptr;
@@ -35,7 +35,7 @@ SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_un
 	MyAppState* state = new MyAppState();
 	*appstate = state;
 
-	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK (SDL Experiment)", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALWAYS_ON_TOP, &state->window, &state->renderer)) {
+	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK (SDL Experiment)", 1, 1, SDL_WINDOW_TRANSPARENT | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS, &state->window, &state->renderer)) {
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -93,23 +93,20 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
 SDL_AppResult SDL_AppIterate(void* appstate) {
 	const MyAppState* state = static_cast<MyAppState*>(appstate);
-	SDL_Window* window = state->window;
 	SDL_Renderer* renderer = state->renderer;
 
-	int x, y;
-	SDL_GetWindowPosition(window, &x, &y);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_TRANSPARENT);
+	SDL_RenderClear(renderer);
 
-	const SDL_FRect srcRect = {static_cast<float>(x), static_cast<float>(y), WINDOW_WIDTH, WINDOW_HEIGHT};
+	glm::vec2 mouse;
+	SDL_GetMouseState(&mouse.x, &mouse.y);
 
-	const float insetX = SDL_max(0, 0 - x);
-	const float insetY = SDL_max(0, 0 - y);
+	const glm::vec2 center = mouse - glm::vec2(WINDOW_SIZE / 2);
+	const glm::vec2 maxClamp = state->displaySize - WINDOW_SIZE;
+	const glm::vec2 clamped = glm::clamp(center, glm::vec2(0), maxClamp);
 
-	const float outsetX = SDL_min(0, static_cast<float>(state->displaySize.x) - static_cast<float>(x) - WINDOW_WIDTH);
-	const float outsetY = SDL_min(0, static_cast<float>(state->displaySize.y) - static_cast<float>(y) - WINDOW_HEIGHT);
-
-	const SDL_FRect dstRect = {insetX, insetY, WINDOW_WIDTH - insetX + outsetX, WINDOW_HEIGHT - insetY + outsetY};
-
-	SDL_RenderTexture(renderer, state->background, &srcRect, &dstRect);
+	const SDL_FRect rect = {clamped.x, clamped.y, WINDOW_SIZE.x, WINDOW_SIZE.y};
+	SDL_RenderTexture(renderer, state->background, &rect, &rect);
 
 	SDL_RenderPresent(renderer);
 
