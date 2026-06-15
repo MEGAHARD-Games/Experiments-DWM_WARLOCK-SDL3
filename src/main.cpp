@@ -28,7 +28,7 @@ struct MyAppState {
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Texture* background = nullptr;
-	glm::ivec2 displaySize = {};
+	SDL_Rect displayBounds = {};
 };
 
 SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
@@ -41,12 +41,10 @@ SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_un
 	}
 
 	const SDL_DisplayID gameDisplay = SDL_GetDisplayForWindow(state->window);
-	SDL_Rect rect;
-	SDL_GetDisplayBounds(gameDisplay, &rect);
-	state->displaySize = {rect.w, rect.h};
+	SDL_GetDisplayBounds(gameDisplay, &state->displayBounds);
 
 	SDL_Renderer* renderer = state->renderer;
-	state->background = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, state->displaySize.x, state->displaySize.y);
+	state->background = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, state->displayBounds.w, state->displayBounds.h);
 	if (!state->background) {
 		SDL_Log("Couldn't create render target: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
@@ -57,7 +55,7 @@ SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_un
 	SDL_RenderClear(renderer);
 
 	for (int clumps = 0; clumps < 200; clumps++) {
-		glm::vec2 clumpPos = {random(0.0f, static_cast<float>(state->displaySize.x)), random(0.0f, static_cast<float>(state->displaySize.y))};
+		glm::vec2 clumpPos = {random(0.0f, static_cast<float>(state->displayBounds.w)), random(0.0f, static_cast<float>(state->displayBounds.h))};
 		for (int blade = 0; blade < random(2, 3); blade++) {
 			glm::vec2 bladeDir = fromAngle(glm::pi<float>() + glm::half_pi<float>() + random(-glm::quarter_pi<float>(), glm::quarter_pi<float>())); //random angle like:  \|/
 			bladeDir *= random(5.0f, 10.0f); //length of the blade
@@ -98,14 +96,16 @@ SDL_AppResult SDL_AppIterate(void* appstate) {
 
 	int x, y;
 	SDL_GetWindowPosition(window, &x, &y);
+	x -= state->displayBounds.x;
+	y -= state->displayBounds.y;
 
 	const SDL_FRect srcRect = {static_cast<float>(x), static_cast<float>(y), WINDOW_WIDTH, WINDOW_HEIGHT};
 
 	const float insetX = SDL_max(0, 0 - x);
 	const float insetY = SDL_max(0, 0 - y);
 
-	const float outsetX = SDL_min(0, static_cast<float>(state->displaySize.x) - static_cast<float>(x) - WINDOW_WIDTH);
-	const float outsetY = SDL_min(0, static_cast<float>(state->displaySize.y) - static_cast<float>(y) - WINDOW_HEIGHT);
+	const float outsetX = SDL_min(0, static_cast<float>(state->displayBounds.w) - static_cast<float>(x) - WINDOW_WIDTH);
+	const float outsetY = SDL_min(0, static_cast<float>(state->displayBounds.h) - static_cast<float>(y) - WINDOW_HEIGHT);
 
 	const SDL_FRect dstRect = {insetX, insetY, WINDOW_WIDTH - insetX + outsetX, WINDOW_HEIGHT - insetY + outsetY};
 
