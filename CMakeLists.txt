@@ -40,6 +40,7 @@ endif ()
 # Create your game executable target as usual
 add_executable(${CMAKE_PROJECT_NAME}
 		src/main.cpp
+		src/Game.cpp
 )
 
 # Link to the libraries
