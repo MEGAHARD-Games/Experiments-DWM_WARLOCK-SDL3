@@ -1,11 +1,12 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <glm/vec2.hpp>
 
-constexpr int WINDOW_WIDTH = 400;
-constexpr int WINDOW_HEIGHT = 400;
 
 class Game {
+	const glm::ivec2 WINDOW_SIZE = {400, 400};
+
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Texture* background = nullptr;

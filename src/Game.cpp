@@ -1,13 +1,12 @@
 #include "Game.hpp"
 
-#include <glm/vec2.hpp>
 #include <glm/gtc/constants.hpp>
 
 #include "utils.hpp"
 
 
 SDL_AppResult Game::InitWindow() {
-	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK (SDL Experiment)", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_ALWAYS_ON_TOP, &window, &renderer)) {
+	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK (SDL Experiment)", WINDOW_SIZE.x, WINDOW_SIZE.y, SDL_WINDOW_ALWAYS_ON_TOP, &window, &renderer)) {
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -67,16 +66,25 @@ SDL_AppResult Game::RenderFrame() const {
 	SDL_GetWindowPosition(window, &x, &y);
 	x -= displayBounds.x;
 	y -= displayBounds.y;
+	const float fx = static_cast<float>(x);
+	const float fy = static_cast<float>(y);
 
-	const SDL_FRect srcRect = {static_cast<float>(x), static_cast<float>(y), WINDOW_WIDTH, WINDOW_HEIGHT};
+	const float windowWidth = static_cast<float>(WINDOW_SIZE.x);
+	const float windowHeight = static_cast<float>(WINDOW_SIZE.y);
+	const SDL_FRect srcRect = {fx, fy, windowWidth, windowHeight};
 
-	const float insetX = SDL_max(0, 0 - x);
-	const float insetY = SDL_max(0, 0 - y);
+	const float insetX = SDL_max(0.0f, 0.0f - fx);
+	const float insetY = SDL_max(0.0f, 0.0f - fy);
 
-	const float outsetX = SDL_min(0, static_cast<float>(displayBounds.w) - static_cast<float>(x) - WINDOW_WIDTH);
-	const float outsetY = SDL_min(0, static_cast<float>(displayBounds.h) - static_cast<float>(y) - WINDOW_HEIGHT);
+	const float outsetX = SDL_min(0.0f, static_cast<float>(displayBounds.w) - fx - windowWidth);
+	const float outsetY = SDL_min(0.0f, static_cast<float>(displayBounds.h) - fy - windowHeight);
 
-	const SDL_FRect dstRect = {insetX, insetY, WINDOW_WIDTH - insetX + outsetX, WINDOW_HEIGHT - insetY + outsetY};
+	const SDL_FRect dstRect = {
+		insetX,
+		insetY,
+		windowWidth - insetX + outsetX,
+		windowHeight - insetY + outsetY,
+	};
 
 	SDL_RenderTexture(renderer, background, &srcRect, &dstRect);
 
