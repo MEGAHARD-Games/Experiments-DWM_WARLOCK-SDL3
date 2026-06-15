@@ -3,6 +3,12 @@
 #include <SDL3/SDL.h>
 #include <glm/vec2.hpp>
 
+#define CHECK(expr)\
+	do { \
+		const SDL_AppResult result = (expr); \
+		if (result != SDL_APP_CONTINUE) \
+			return result; \
+	} while (false)
 
 inline float map(const float value, const float inMin, const float inMax, const float outMin, const float outMax) {
 	return outMin + (outMax - outMin) * ((value - inMin) / (inMax - inMin));

@@ -41,6 +41,8 @@ endif ()
 add_executable(${CMAKE_PROJECT_NAME}
 		src/main.cpp
 		src/Game.cpp
+		src/WindowMode.cpp
+		src/WindowMode.hpp
 )
 
 # Link to the libraries

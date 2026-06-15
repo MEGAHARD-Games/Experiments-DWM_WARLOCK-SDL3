@@ -2,14 +2,14 @@
 
 #include <glm/gtc/constants.hpp>
 
+#include "WindowMode.hpp"
 #include "utils.hpp"
 
 
 SDL_AppResult Game::InitWindow() {
-	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK (SDL Experiment)", WINDOW_SIZE.x, WINDOW_SIZE.y, SDL_WINDOW_ALWAYS_ON_TOP, &window, &renderer)) {
-		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
-		return SDL_APP_FAILURE;
-	}
+	windowMode = new NativeWindowMode();
+
+	CHECK(windowMode->CreateWindowAndRenderer(this));
 
 	const SDL_DisplayID gameDisplay = SDL_GetDisplayForWindow(window);
 	SDL_GetDisplayBounds(gameDisplay, &displayBounds);
@@ -61,32 +61,17 @@ SDL_AppResult Game::HandleEvent(const SDL_Event* event) {
 	return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult Game::RenderFrame() const {
-	int x, y;
-	SDL_GetWindowPosition(window, &x, &y);
-	x -= displayBounds.x;
-	y -= displayBounds.y;
-	const float fx = static_cast<float>(x);
-	const float fy = static_cast<float>(y);
-
-	const float windowWidth = static_cast<float>(WINDOW_SIZE.x);
-	const float windowHeight = static_cast<float>(WINDOW_SIZE.y);
-	const SDL_FRect srcRect = {fx, fy, windowWidth, windowHeight};
-
-	const float insetX = SDL_max(0.0f, 0.0f - fx);
-	const float insetY = SDL_max(0.0f, 0.0f - fy);
-
-	const float outsetX = SDL_min(0.0f, static_cast<float>(displayBounds.w) - fx - windowWidth);
-	const float outsetY = SDL_min(0.0f, static_cast<float>(displayBounds.h) - fy - windowHeight);
-
-	const SDL_FRect dstRect = {
-		insetX,
-		insetY,
-		windowWidth - insetX + outsetX,
-		windowHeight - insetY + outsetY,
-	};
-
+SDL_AppResult Game::RenderFrame() {
+	// Render Background
+	SDL_FRect srcRect, dstRect;
+	windowMode->GenerateBackgroundCopyRects(this, &srcRect, &dstRect);
 	SDL_RenderTexture(renderer, background, &srcRect, &dstRect);
+
+	// Render Chickens
+
+	// Render Fox
+
+	// Render Net
 
 	SDL_RenderPresent(renderer);
 

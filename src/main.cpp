@@ -2,14 +2,8 @@
 #include <SDL3/SDL_main.h>
 
 #include "Game.hpp"
+#include "utils.hpp"
 
-
-#define CHECK(expr)\
-	do { \
-		const SDL_AppResult result = (expr); \
-		if (result != SDL_APP_CONTINUE) \
-			return result; \
-	} while (false)
 
 SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) {
 	Game* game = new Game();
@@ -33,7 +27,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 
 
 SDL_AppResult SDL_AppIterate(void* appstate) {
-	const Game* game = static_cast<Game*>(appstate);
+	Game* game = static_cast<Game*>(appstate);
 
 	CHECK(game->RenderFrame());
 
