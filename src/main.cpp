@@ -5,21 +5,7 @@
 #include <glm/vec2.hpp>
 #include <glm/gtc/constants.hpp>
 
-float map(const float value, const float inMin, const float inMax, const float outMin, const float outMax) {
-	return outMin + (outMax - outMin) * ((value - inMin) / (inMax - inMin));
-}
-
-float random(const float min, const float max) {
-	return map(SDL_randf(), 0.0f, 1.0f, min, max);
-}
-
-int random(const int min, const int max) {
-	return SDL_rand(max - min + 1) + min;
-}
-
-glm::vec2 fromAngle(const float angle) {
-	return {SDL_cos(angle), SDL_sin(angle)};
-}
+#include "utils.hpp"
 
 constexpr int WINDOW_WIDTH = 400;
 constexpr int WINDOW_HEIGHT = 400;
