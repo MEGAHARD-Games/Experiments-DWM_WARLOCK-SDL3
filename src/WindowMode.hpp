@@ -19,3 +19,11 @@ public:
 
 	void GenerateBackgroundCopyRects(Game* game, SDL_FRect* srcRect, SDL_FRect* dstRect) override;
 };
+
+/// Transparent Fullscreen
+class FakeWindowMode : public IWindowMode {
+public:
+	[[nodiscard]] SDL_AppResult CreateWindowAndRenderer(Game* game) override;
+
+	void GenerateBackgroundCopyRects(Game* game, SDL_FRect* srcRect, SDL_FRect* dstRect) override;
+};
