@@ -40,9 +40,9 @@ SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_un
 		return SDL_APP_FAILURE;
 	}
 
-	const SDL_DisplayID primaryDisplay = SDL_GetPrimaryDisplay();
+	const SDL_DisplayID gameDisplay = SDL_GetDisplayForWindow(state->window);
 	SDL_Rect rect;
-	SDL_GetDisplayBounds(primaryDisplay, &rect);
+	SDL_GetDisplayBounds(gameDisplay, &rect);
 	state->displaySize = {rect.w, rect.h};
 
 	SDL_Renderer* renderer = state->renderer;
