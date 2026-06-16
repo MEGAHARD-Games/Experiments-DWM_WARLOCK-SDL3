@@ -11,7 +11,7 @@ SDL_AppResult Game::InitWindow() {
 
 	CHECK(windowMode->CreateWindowAndRenderer(this));
 
-	const SDL_DisplayID gameDisplay = SDL_GetDisplayForWindow(window);
+	gameDisplay = SDL_GetDisplayForWindow(window);
 	SDL_GetDisplayBounds(gameDisplay, &displayBounds);
 
 	return SDL_APP_CONTINUE;
@@ -44,6 +44,14 @@ SDL_AppResult Game::InitBackground() {
 	return SDL_APP_CONTINUE;
 }
 
+SDL_AppResult Game::SwitchWindowMode(IWindowMode* newWindowMode) {
+	delete windowMode;
+	windowMode = newWindowMode;
+	windowMode->SwitchTo(this);
+
+	return SDL_APP_CONTINUE;
+}
+
 SDL_AppResult Game::HandleEvent(const SDL_Event* event) {
 	switch (event->type) {
 		case SDL_EVENT_QUIT:
@@ -53,6 +61,16 @@ SDL_AppResult Game::HandleEvent(const SDL_Event* event) {
 				case SDLK_ESCAPE:
 				case SDLK_Q:
 					return SDL_APP_SUCCESS;
+				case SDLK_1:
+					if (!dynamic_cast<FakeWindowMode*>(windowMode)) {
+						CHECK(SwitchWindowMode(new FakeWindowMode()));
+					}
+					break;
+				case SDLK_2:
+					if (!dynamic_cast<NativeWindowMode*>(windowMode)) {
+						CHECK(SwitchWindowMode(new NativeWindowMode()));
+					}
+					break;
 				default: break;
 			}
 		default: break;
@@ -81,4 +99,5 @@ SDL_AppResult Game::RenderFrame() {
 void Game::Cleanup() const {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+	delete windowMode;
 }

@@ -18,7 +18,7 @@ SDL_AppResult SDL_AppInit(void** appstate, [[maybe_unused]] int argc, [[maybe_un
 
 // ReSharper disable once CppParameterMayBeConstPtrOrRef
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
-	const Game* game = static_cast<Game*>(appstate);
+	Game* game = static_cast<Game*>(appstate);
 
 	CHECK(game->HandleEvent(event));
 

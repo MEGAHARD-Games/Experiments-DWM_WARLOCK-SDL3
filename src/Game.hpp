@@ -13,13 +13,16 @@ public:
 	SDL_Window* window = nullptr;
 	SDL_Renderer* renderer = nullptr;
 	SDL_Texture* background = nullptr;
+	SDL_DisplayID gameDisplay = 0;
 	SDL_Rect displayBounds = {};
 
 	[[nodiscard]] SDL_AppResult InitWindow();
 
 	[[nodiscard]] SDL_AppResult InitBackground();
 
-	[[nodiscard]] static SDL_AppResult HandleEvent(const SDL_Event* event);
+	[[nodiscard]] SDL_AppResult SwitchWindowMode(IWindowMode* newWindowMode);
+
+	[[nodiscard]] SDL_AppResult HandleEvent(const SDL_Event* event);
 
 	[[nodiscard]] SDL_AppResult RenderFrame();
 

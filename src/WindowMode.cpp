@@ -8,7 +8,8 @@
 // --- Native Window Mode
 
 SDL_AppResult NativeWindowMode::CreateWindowAndRenderer(Game* game) {
-	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK/SDL3 (Native)", game->WINDOW_SIZE.x, game->WINDOW_SIZE.y, SDL_WINDOW_ALWAYS_ON_TOP, &game->window, &game->renderer)) {
+	if (constexpr SDL_WindowFlags flags = SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_TRANSPARENT; //transparent, in case the user switches to Fake
+		!SDL_CreateWindowAndRenderer(WINDOW_TITLE, game->WINDOW_SIZE.x, game->WINDOW_SIZE.y, flags, &game->window, &game->renderer)) {
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -42,11 +43,26 @@ void NativeWindowMode::GenerateBackgroundCopyRects(Game* game, SDL_FRect* srcRec
 	};
 }
 
+void NativeWindowMode::SwitchTo(Game* game) {
+	glm::vec2 mouse;
+	SDL_GetGlobalMouseState(&mouse.x, &mouse.y);
+	glm::ivec2 iMouse = glm::ivec2(mouse);
+	iMouse -= game->WINDOW_SIZE / 2;
+
+	SDL_SetWindowFullscreen(game->window, false);
+	SDL_SetWindowSize(game->window, game->WINDOW_SIZE.x, game->WINDOW_SIZE.y);
+	SDL_SetWindowPosition(game->window, iMouse.x, iMouse.y);
+	SDL_SetWindowAlwaysOnTop(game->window, true);
+	SDL_SetWindowBordered(game->window, true);
+	SDL_SetWindowTitle(game->window, WINDOW_TITLE);
+}
+
 
 // --- Fake Window Mode
 
 SDL_AppResult FakeWindowMode::CreateWindowAndRenderer(Game* game) {
-	if (!SDL_CreateWindowAndRenderer("DWM_WARLOCK/SDL (Fake)", 1, 1, SDL_WINDOW_TRANSPARENT | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS, &game->window, &game->renderer)) {
+	if (constexpr SDL_WindowFlags flags = SDL_WINDOW_TRANSPARENT | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS;
+		!SDL_CreateWindowAndRenderer(WINDOW_TITLE, 1, 1, flags, &game->window, &game->renderer)) {
 		SDL_Log("SDL_CreateWindowAndRenderer() failed: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
@@ -69,4 +85,15 @@ void FakeWindowMode::GenerateBackgroundCopyRects(Game* game, SDL_FRect* srcRect,
 	const SDL_FRect rect = {clamped.x, clamped.y, windowSize.x, windowSize.y};
 	*srcRect = rect;
 	*dstRect = rect;
+}
+
+void FakeWindowMode::SwitchTo(Game* game) {
+	if (const SDL_DisplayID displayID = SDL_GetDisplayForWindow(game->window);
+		displayID != game->gameDisplay) {
+		SDL_SetWindowPosition(game->window, game->displayBounds.x + game->WINDOW_SIZE.x / 2, game->displayBounds.y + game->WINDOW_SIZE.y / 2);
+	}
+	SDL_SetWindowAlwaysOnTop(game->window, false);
+	SDL_SetWindowBordered(game->window, false);
+	SDL_SetWindowFullscreen(game->window, true);
+	SDL_SetWindowTitle(game->window, WINDOW_TITLE);
 }
